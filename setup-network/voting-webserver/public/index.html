@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Voting System</h1>
+        <div class="form-section">
+            <h2>Cast Vote</h2>
+            <form id="vote-form">
+               <label for="candidateId">Candidate ID:</label>
+                <input type="text" id="candidateId" name="candidateId" required>
+                <button type="submit">Cast Vote</button>
+            </form>
+        </div>
+
+        <div class="form-section">
+            <h2>View Candidates</h2>
+            <button id="query-candidates">Query Candidates</button>
+                <br>
+            <div id="candidatesContainer"></div>
+                <br>
+        </div>
+
+<script>
+document.getElementById('query-candidates').addEventListener('click', async () => {
+    const candidatesContainer = document.getElementById('candidatesContainer');
+
+    try {
+        // Fetch data from the `/candidates` endpoint
+        const response = await fetch('/candidates');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const candidates = await response.json();
+
+        // Clear the container
+        candidatesContainer.innerHTML = '';
+
+        // Create a table to display the data
+        const table = document.createElement('table');
+
+        // Add a table header
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th>Candidate ID</th>
+            <th>Name</th>
+        `;
+        table.appendChild(headerRow);
+
+        // Add table rows for each candidate
+        candidates.forEach(candidate => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${candidate.candidateId}</td>
+                <td>${candidate.name}</td>
+            `;
+            table.appendChild(row);
+        });
+
+        // Append the table to the container
+        candidatesContainer.appendChild(table);
+    } catch (error) {
+        candidatesContainer.innerHTML = `<p style="color:red;">Failed to load candidates: ${error.message}</p>`;
+    }
+});
+
+// Cast a vote
+document.getElementById('vote-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const candidateId = document.getElementById('candidateId').value;
+
+    const response = await fetch('http://localhost:3000/vote', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ candidateId })
+    });
+
+    const result = await response.text();
+    alert(result);
+});
+
+</script>
+</body>
+</html>

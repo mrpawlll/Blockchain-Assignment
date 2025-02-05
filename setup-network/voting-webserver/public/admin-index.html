@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Voting System</h1>
+        <div class="form-section">
+            <h2>View Users</h2>
+            <button id="query-users">Query Users</button>
+            <div id="userContainer"></div>
+        </div>
+
+        <div class="form-section">
+            <h2>View Candidates</h2>
+            <button id="query-candidates">Query Candidates</button>
+                <br>
+            <div id="candidatesContainer"></div>
+                <br>
+        </div>
+    </div>
+
+<script>
+// Query users
+document.getElementById('query-users').addEventListener('click', async () => {
+    const userContainer = document.getElementById('userContainer');
+    try {
+        // Fetch data from the `/candidates` endpoint
+        const response = await fetch('/users');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const users = await response.json();
+
+        // Clear the container
+        userContainer.innerHTML = '';
+
+        // Create a table to display the data
+        const table = document.createElement('table');
+
+        // Add a table header
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th>User ID</th>
+            <th>Votes</th>
+        `;
+        table.appendChild(headerRow);
+
+        // Add table rows for each candidate
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.certificateId}</td>
+                <td>${user.votes}</td>
+            `;
+            table.appendChild(row);
+        });
+
+        // Append the table to the container
+        userContainer.appendChild(table);
+    } catch (error) {
+        userContainer.innerHTML = `<p style="color:red;">Failed to load user: ${error.message}</p>`;
+    }
+
+});
+
+document.getElementById('query-candidates').addEventListener('click', async () => {
+    const candidatesContainer = document.getElementById('candidatesContainer');
+
+    try {
+        // Fetch data from the `/candidates` endpoint
+        const response = await fetch('/candidates');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const candidates = await response.json();
+
+        // Clear the container
+        candidatesContainer.innerHTML = '';
+
+        // Create a table to display the data
+        const table = document.createElement('table');
+
+        // Add a table header
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th>Candidate ID</th>
+            <th>Name</th>
+            <th>Votes</th>
+        `;
+        table.appendChild(headerRow);
+
+        // Add table rows for each candidate
+        candidates.forEach(candidate => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${candidate.candidateId}</td>
+                <td>${candidate.name}</td>
+                <td>${candidate.votes}</td>
+            `;
+            table.appendChild(row);
+        });
+
+        // Append the table to the container
+        candidatesContainer.appendChild(table);
+    } catch (error) {
+        candidatesContainer.innerHTML = `<p style="color:red;">Failed to load candidates: ${error.message}</p>`;
+    }
+});
+</script>
+</body>
+</html>
